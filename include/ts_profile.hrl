@@ -54,11 +54,9 @@
 
 % protocol options
 -record(proto_opts,
-        {ssl_ciphers   = negotiate, % for ssl only
-         ssl_versions  = negotiate, % for ssl only
+        {ssl_ciphers   = negociate, % for ssl only
          bosh_path = "/http-bind/",  % for bash only
-         tcp_reuseaddr  = false,  % for tcp reuseaddr
-         ip_transparent = false,  % set IP_TRANSPARENT option on the socket
+         tcp_reuseaddr = false,  % for tcp reuseaddr
          websocket_path = "/chat",  % for websocket only
          websocket_frame = "binary",  % for websocket only
          retry_timeout = 10,        % retry sending in milliseconds

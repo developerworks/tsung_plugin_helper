@@ -309,25 +309,6 @@ parse(Element = #xmlElement{name=ip, attributes=Attrs},
                                |CList]},
                 Element#xmlElement.content);
 
-%% Parsing the iprange
-parse(Element = #xmlElement{name=iprange, attributes=Attrs},
-      Conf = #config{clients=[CurClient|CList]}) ->
-    %% only ipv4 currently
-    IP = getAttr(Attrs, value),
-    SubList = string:tokens(IP, "."),
-    [A,B,C,D] = lists:map(fun(A) ->
-                            case getTypeAttr(integer_or_string, A) of
-                                I when is_integer(I) -> I;
-                                S when is_list(S) ->
-                                    [Min, Max] = lists:map(fun(X)-> list_to_integer(X) end, string:tokens(S,"-")),
-                                    {Min, Max}
-                            end
-                    end, SubList),
-    ?LOGF("IP range: ~p~n",[ { A,B,C,D }],?INFO),
-    lists:foldl(fun parse/2,
-        Conf#config{clients = [CurClient#client{iprange = {A,B,C,D} } | CList]},
-                Element#xmlElement.content);
-
 %% Parsing the arrivalphase element
 parse(Element = #xmlElement{name=arrivalphase, attributes=Attrs},
       Conf = #config{arrivalphases=AList}) ->
@@ -782,15 +763,9 @@ parse(Element = #xmlElement{name=option, attributes=Attrs},
                     ets:insert(Tab,{{thinktime, override}, Override}),
                     lists:foldl( fun parse/2, Conf, Element#xmlElement.content);
                 "ssl_ciphers" ->
-                    Cipher = getAttr(string,Attrs, value, negotiate),
+                    Cipher = getAttr(string,Attrs, value, negociate),
                     OldProto =  Conf#config.proto_opts,
                     NewProto =  OldProto#proto_opts{ssl_ciphers=Cipher},
-                    lists:foldl( fun parse/2, Conf#config{proto_opts=NewProto},
-                                 Element#xmlElement.content);
-                "ssl_versions" ->
-                    Protocol = getAttr(string,Attrs, value, negotiate),
-                    OldProto =  Conf#config.proto_opts,
-                    NewProto =  OldProto#proto_opts{ssl_versions=Protocol},
                     lists:foldl( fun parse/2, Conf#config{proto_opts=NewProto},
                                  Element#xmlElement.content);
                 "ssl_reuse_sessions" ->
@@ -926,20 +901,6 @@ parse(Element = #xmlElement{name=option, attributes=Attrs},
                     GlobalNumber = getAttr(integer, Attrs, value, ?config(global_number)),
                     ts_timer:config(GlobalNumber),
                     lists:foldl( fun parse/2, Conf, Element#xmlElement.content);
-                "max_ssh_startup_per_core" ->
-                    MaxStartup =  getAttr(integer,Attrs, value, 20),
-                    lists:foldl( fun parse/2, Conf#config{max_ssh_startup=MaxStartup},
-                                 Element#xmlElement.content);
-                "ip_transparent" ->
-                    case getAttr(atom, Attrs, value, false) of
-                        true ->
-                            OldProto =  Conf#config.proto_opts,
-                            NewProto =  OldProto#proto_opts{ip_transparent = true},
-                            lists:foldl( fun parse/2, Conf#config{proto_opts=NewProto},
-                                         Element#xmlElement.content);
-                        false ->
-                            lists:foldl( fun parse/2, Conf, Element#xmlElement.content)
-                    end;
                 "tcp_reuseaddr" ->
                     Reuseaddr = getAttr(atom, Attrs, value, false),
                     case Reuseaddr of

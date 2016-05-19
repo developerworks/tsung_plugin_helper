@@ -22,13 +22,7 @@
 -vc('$Id: ts_macros.hrl,v 0.0 2012/08/22 09:07:50 nniclaus Exp $ ').
 -author('nniclaus@sophia.inria.fr').
 
--ifndef(new_time_api).
--define(NOW, erlang:now()).
--define(TIMESTAMP, erlang:now()).
--else.
--define(NOW, erlang:monotonic_time()).
--define(TIMESTAMP, erlang:timestamp()).
--endif.
+-define(NOW, now()).
 
 -define(CRLF, "\r\n").
 -define(CR,13).
