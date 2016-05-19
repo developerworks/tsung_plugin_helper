@@ -36,10 +36,10 @@
 -author('nicolas@niclux.org').
 -vc('$Id$ ').
 
+-include_lib("xmerl/include/xmerl.hrl").
+
 -include("ts_profile.hrl").
 -include("ts_config.hrl").
-
--include("xmerl.hrl").
 
 -export([read/2,
          getAttr/2,
